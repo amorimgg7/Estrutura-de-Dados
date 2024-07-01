@@ -8,20 +8,19 @@ Grupo composto por 6 pessoas:
     - Bruno Verduc Martins Costa    -   1230106373
 */
 
-# include <locale.h>
+#include <locale.h>
 #include <stdlib.h>
 #include <string.h>
-# include <stdbool.h>
-# include <stdio.h>
-# ifdef _WIN32
-# define CLEAR "cls"
-# else
-# define CLEAR "clear"
-# endif
+#include <stdbool.h>
+#include <stdio.h>
+#ifdef _WIN32
+#define CLEAR "cls"
+#else
+#define CLEAR "clear"
+#endif
 
 #define TAM_HASH 100
 #define MAX_NOME 20
-
 
 void Cabecalho(const char *titulo) {
     char str[60];
@@ -56,7 +55,6 @@ void Rodape(bool pause) {
         system("pause");
     }
 }
-
 
 typedef enum {Reservada, Variavel, Constante, Fim} TipoToken;
 char *str_TipoToken[] = {"Reservada", "Variavel", "Constante", "Fim"};
@@ -141,17 +139,26 @@ void imprimeTabela(Symbol **table) {
 
 void adicionarToken() {
     char nome[MAX_NOME + 1];
+    char buffer[100];
     int valor;
     printf("Digite o nome do token (max %d letras): ", MAX_NOME);
-    scanf("%s", nome);
+    scanf("%99s", buffer);
+
+    if (strlen(buffer) > MAX_NOME) {
+    printf("Erro: Nome do token excede o limite de %d caracteres.\n", MAX_NOME);
+    return;
+    }
+
+    strncpy(nome, buffer, MAX_NOME);
+    nome[MAX_NOME] = '\0';
+
     printf("Digite o valor numérico: ");
     scanf("%d", &valor);
     insereTabela(hashTable, nome, valor);
 }
-
 int main(void) {
     initHashTable();
-setlocale(LC_ALL, "Portuguese");
+    setlocale(LC_ALL, "Portuguese");
     int opcao;
     do {
         Cabecalho("Menu");
