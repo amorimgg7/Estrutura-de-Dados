@@ -1,5 +1,59 @@
-#include <stdio.h>
+/*
+Grupo composto por 6 pessoas:
+    - Gabriel Gomes Amorim          -   1230121318
+    - Christopher Chaider           -   1230116675
+    - Lygia Menezes de Lima         -   1230210137
+    - Camilla Carolina              -   1230102765
+    - Matheus de Souza da Fonseca   -   1230114114
+    - Bruno Verduc Martins Costa    -   1230106373
+*/
+
+
+#include <locale.h>
 #include <stdlib.h>
+#include <stdbool.h>
+#include <stdio.h>
+#ifdef _WIN32
+#define CLEAR "cls"
+#else
+#define CLEAR "clear"
+#endif
+
+void Cabecalho(const char *titulo) {
+    char str[60];
+    int num_spaces = 5;
+    char spaces[11];
+    for(int i = 0; i < num_spaces; i++) {
+        spaces[i] = ' ';
+    }
+    spaces[num_spaces] = '\0';
+    sprintf(str, "%s%s", spaces, titulo);
+    system(CLEAR);
+    printf("/");
+    for(int i = 0; i < 60; i++) {
+        printf("¨");
+    }
+    printf("\\\n");
+    printf("%s\n", str);
+    printf("\\");
+    for(int i = 0; i < 60; i++) {
+        printf("_");
+    }
+    printf("/\n");
+}
+
+void Rodape(bool pause) {
+    printf("\\");
+    for (int i = 0; i < 60; i++) {
+        printf("_");
+    }
+    printf("/\n");
+    if (pause) {
+        system("pause");
+    }
+}
+
+
 
 struct noGrafo {
     int info;
@@ -15,23 +69,32 @@ struct noArco {
 };
 typedef struct noArco *PtrNoArco;
 
-// Insere um nó p no grafo g
+// Insere um nó p no grafo g em ordem crescente
 void insertnode(PtrNoGrafo *g, PtrNoGrafo p) {
-    p->proxNo = *g;
-    *g = p;
+    if (*g == NULL || (*g)->info > p->info) {
+        p->proxNo = *g;
+        *g = p;
+    } else {
+        PtrNoGrafo current = *g;
+        while (current->proxNo != NULL && current->proxNo->info < p->info) {
+            current = current->proxNo;
+        }
+        p->proxNo = current->proxNo;
+        current->proxNo = p;
+    }
 }
 
 // Inclui um arco de peso p de no1 até no2
-void joinwtInfo(PtrNoGrafo g, int no1, int no2, int p) {
+void joinwtInfo(PtrNoGrafo g, int x1, int x2, int p) {
     PtrNoGrafo ptr1 = NULL, ptr2 = NULL;
     PtrNoGrafo temp = g;
 
-    // Encontrar os nós no1 e no2
+    // Encontrar os nós x1 e x2
     while (temp != NULL) {
-        if (temp->info == no1) {
+        if (temp->info == x1) {
             ptr1 = temp;
         }
-        if (temp->info == no2) {
+        if (temp->info == x2) {
             ptr2 = temp;
         }
         temp = temp->proxNo;
@@ -47,16 +110,16 @@ void joinwtInfo(PtrNoGrafo g, int no1, int no2, int p) {
 }
 
 // Verifica se no1 e no2 são adjacentes
-int adjacent(PtrNoGrafo g, int no1, int no2) {
+int inAdjacent(PtrNoGrafo g, int x1, int x2) {
     PtrNoGrafo temp = g;
 
-    // Encontrar o nó no1
+    // Encontrar o nó x1
     while (temp != NULL) {
-        if (temp->info == no1) {
+        if (temp->info == x1) {
             PtrNoArco arco = temp->arcos;
-            // Verificar se existe um arco de no1 para no2
+            // Verificar se existe um arco de x1 para x2
             while (arco != NULL) {
-                if (arco->no->info == no2) {
+                if (arco->no->info == x2) {
                     return 1;
                 }
                 arco = arco->proxArco;
@@ -85,35 +148,35 @@ void mostraGrafo(PtrNoGrafo g) {
 
 int main(void) {
     PtrNoGrafo g = NULL;
+    setlocale(LC_ALL, "Portuguese");
+    Cabecalho("Representação do Grafo");
+    // Criando nós do grafo (de 0 a 7)
+    for (int i = 0; i < 8; i++) {
+        PtrNoGrafo no = (PtrNoGrafo)malloc(sizeof(struct noGrafo));
+        no->info = i;
+        no->arcos = NULL;
+        insertnode(&g, no);
+    }
 
-    // Criando nós do grafo
-    PtrNoGrafo no1 = (PtrNoGrafo)malloc(sizeof(struct noGrafo));
-    no1->info = 1;
-    no1->arcos = NULL;
-    insertnode(&g, no1);
-
-    PtrNoGrafo no2 = (PtrNoGrafo)malloc(sizeof(struct noGrafo));
-    no2->info = 2;
-    no2->arcos = NULL;
-    insertnode(&g, no2);
-
-    PtrNoGrafo no3 = (PtrNoGrafo)malloc(sizeof(struct noGrafo));
-    no3->info = 3;
-    no3->arcos = NULL;
-    insertnode(&g, no3);
-
-    // Criando arcos entre os nós
-    joinwtInfo(g, 1, 2, 10);
-    joinwtInfo(g, 2, 3, 20);
-    joinwtInfo(g, 3, 1, 30);
+    // Criando arcos entre os nós conforme a imagem
+    joinwtInfo(g, 0, 3, 2);
+    joinwtInfo(g, 1, 0, 1);
+    joinwtInfo(g, 1, 2, 3);
+    joinwtInfo(g, 3, 0, 2);
+    joinwtInfo(g, 3, 4, 2);
+    joinwtInfo(g, 3, 2, 4);
+    joinwtInfo(g, 4, 4, 1);
+    joinwtInfo(g, 5, 6, 3);
+    //joinwtInfo(g, 5, 6, 80);
+    //joinwtInfo(g, 6, 7, 90);
 
     // Mostrando o grafo
     mostraGrafo(g);
 
     // Verificando adjacências
-    printf("Adjacente 1 -> 2: %d\n", adjacent(g, 1, 2)); // Deve retornar 1
-    printf("Adjacente 1 -> 3: %d\n", adjacent(g, 1, 3)); // Deve retornar 0
-    printf("Adjacente 3 -> 1: %d\n", adjacent(g, 3, 1)); // Deve retornar 1
-
+    ////printf("Adjacente 0 -> 1: %d\n", adjacent(g, 0, 1)); // Deve retornar 1
+    ////printf("Adjacente 0 -> 3: %d\n", adjacent(g, 0, 3)); // Deve retornar 0
+    ////printf("Adjacente 5 -> 6: %d\n", adjacent(g, 5, 6)); // Deve retornar 1
+Rodape(false);
     return 0;
 }

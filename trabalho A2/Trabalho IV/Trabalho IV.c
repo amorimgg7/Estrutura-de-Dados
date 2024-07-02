@@ -156,6 +156,7 @@ void adicionarToken() {
     scanf("%d", &valor);
     insereTabela(hashTable, nome, valor);
 }
+
 int main(void) {
     initHashTable();
     setlocale(LC_ALL, "Portuguese");
